@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"strings"
 
 	// Uncomment this block to pass the first stage
@@ -51,7 +52,7 @@ func handleConnection(conn net.Conn) {
 		b := make([]byte, 1024)
 		_, err := conn.Read(b)
 		if err != nil {
-			panic(err)
+			log.Println("DEBUGGING: ", err.Error())
 		}
 
 		if strings.Contains(string(b), "PING") {

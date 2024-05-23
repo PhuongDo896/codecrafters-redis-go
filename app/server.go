@@ -47,13 +47,15 @@ func main() {
 }
 
 func handleConnection(conn net.Conn) {
-	b := make([]byte, 1024)
-	_, err := conn.Read(b)
-	if err != nil {
-		panic(err)
-	}
+	for {
+		b := make([]byte, 1024)
+		_, err := conn.Read(b)
+		if err != nil {
+			panic(err)
+		}
 
-	if strings.Contains(string(b), "PING") {
-		conn.Write([]byte(RESPONSE))
+		if strings.Contains(string(b), "PING") {
+			conn.Write([]byte(RESPONSE))
+		}
 	}
 }

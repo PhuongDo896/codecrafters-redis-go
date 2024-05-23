@@ -2,10 +2,14 @@ package main
 
 import (
 	"fmt"
+	"strings"
+
 	// Uncomment this block to pass the first stage
 	"net"
 	"os"
 )
+
+const RESPONSE = "+PONG\r\n"
 
 func main() {
 	// You can use print statements as follows for debugging, they'll be visible when running tests.
@@ -25,5 +29,15 @@ func main() {
 		os.Exit(1)
 	}
 
-	conn.Write([]byte("+PONG\r\n"))
+	for {
+		b := make([]byte, 1024)
+		_, err = conn.Read(b)
+		if err != nil {
+			panic(err)
+		}
+
+		if strings.Contains(string(b), "PING") {
+			conn.Write([]byte(RESPONSE))
+		}
+	}
 }

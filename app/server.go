@@ -23,6 +23,7 @@ func main() {
 		fmt.Println("Failed to bind to port 6379")
 		os.Exit(1)
 	}
+	defer l.Close()
 
 	for {
 		conn, err := l.Accept()
@@ -34,25 +35,17 @@ func main() {
 		go handleConnection(conn)
 	}
 
-	// for {
-	// 	b := make([]byte, 1024)
-	// 	_, err = conn.Read(b)
-	// 	if err != nil {
-	// 		panic(err)
-	// 	}
-
-	// 	if strings.Contains(string(b), "PING") {
-	// 		conn.Write([]byte(RESPONSE))
-	// 	}
-	// }
 }
 
 func handleConnection(conn net.Conn) {
+	defer conn.Close()
+
 	for {
 		b := make([]byte, 1024)
 		_, err := conn.Read(b)
 		if err != nil {
 			log.Println("DEBUGGING: ", err.Error())
+			break
 		}
 
 		if strings.Contains(string(b), "PING") {

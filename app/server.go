@@ -1,7 +1,9 @@
 package main
 
 import (
+	"errors"
 	"fmt"
+	"io"
 	"log"
 	"strings"
 
@@ -26,6 +28,7 @@ func main() {
 	defer l.Close()
 
 	for {
+		// TODO: this block until new connection
 		conn, err := l.Accept()
 		if err != nil {
 			fmt.Println("Error accepting connection: ", err.Error())
@@ -42,8 +45,12 @@ func handleConnection(conn net.Conn) {
 
 	for {
 		b := make([]byte, 1024)
+		// TODO: this block until new line is sent by client
 		_, err := conn.Read(b)
-		if err != nil {
+		if errors.Is(err, io.EOF) {
+			log.Println("Connection closed by client")
+			break
+		} else if err != nil {
 			log.Println("DEBUGGING: ", err.Error())
 			break
 		}

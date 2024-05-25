@@ -63,6 +63,7 @@ func handleConnection(conn net.Conn, global *types.GlobalMap) {
 		//	router
 		data := string(input)
 		commands := utils.RespParser(data)
+		log.Println("COMMANDS LIST: ", commands)
 		switch commands[0] {
 		case "ping":
 			if len(commands) != 1 {
@@ -87,7 +88,6 @@ func handleConnection(conn net.Conn, global *types.GlobalMap) {
 				router.NSetHandler(commands[1], commands[2], conn, global)
 			} else if len(commands) == 5 && commands[3] == "px" {
 				router.ESetHandler(commands[1], commands[2], commands[4], conn, global)
-				log.Println("GLOBAL STATE: ", global.Store)
 			}
 
 		case "get":

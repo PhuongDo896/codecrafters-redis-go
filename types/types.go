@@ -47,7 +47,7 @@ func (g *GlobalMap) Get(key string) string {
 			return val.Value
 		} else {
 			delete(g.Store, key)
-			return "$-1\r\n"
+			return ""
 		}
 	}
 }

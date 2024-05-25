@@ -28,7 +28,11 @@ func NSetHandler(key, value string, writer net.Conn, globalMap *types.GlobalMap)
 // 1 input, response value of key from global map
 func GetHandler(key string, writer net.Conn, globalMap *types.GlobalMap) {
 	value := globalMap.Get(key)
-	writer.Write(utils.Response(value))
+	if value == "" {
+		writer.Write(utils.NullResponse())
+	} else {
+		writer.Write(utils.Response(value))
+	}
 }
 
 // 4 input, response OK, save key-value pair into global map, delete it after expire time passed

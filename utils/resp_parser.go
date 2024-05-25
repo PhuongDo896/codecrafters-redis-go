@@ -51,3 +51,7 @@ func processBulkString(s ...string) (string, bool) {
 func Response(s string) []byte {
 	return []byte(fmt.Sprintf("+%s\r\n", s))
 }
+
+func NullResponse() []byte {
+	return []byte("$-1\r\n")
+}

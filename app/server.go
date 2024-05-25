@@ -79,36 +79,40 @@ func respParser(resp string) []string {
 	resp = strings.ToLower(resp)
 
 	re := regexp.MustCompile(`\$([0-9]+)\r\n(.+?)\r\n`)
-	match := re.FindAllString(resp, -1)
+	match := re.FindAllStringSubmatch(resp, -1)
 
-	command := make([]string, 0)
+	commands := make([]string, 0)
 
 	for _, m := range match {
-		word, ok := processBulkString(m)
+		word, ok := processBulkString(m...)
 		if ok {
-			command = append(command, word)
+			commands = append(commands, word)
 		}
 	}
 
-	return command
+	return commands
 }
 
-// 1st bit: $
-// 2nd bit: word length
-// 3rd and 4th bit: \r\n
-// 2 last bits: \r\n
-// => total bits = word length + 6
-func processBulkString(s string) (string, bool) {
+// for each submatch, there's 3 elements
+// 1st elem: whole submatch
+// 2nd elem: ([0-9]+) group
+// 3rd elem: (.+?) group
+func processBulkString(s ...string) (string, bool) {
+	if len(s) != 3 {
+		return "", false
+	}
+
 	wordLen, err := strconv.Atoi(string(s[1]))
 	if err != nil {
 		return "", false
 	}
 
-	if len(s) != wordLen+6 {
+	// len of string = 5 fixed bit + (len(s[1])) + wordLen
+	if len(s[0]) != 5+(len(s[1]))+wordLen {
 		return "", false
 	}
 
-	return s[4 : 4+wordLen], true
+	return s[0][3+(len(s[1])) : 3+(len(s[1]))+wordLen], true
 }
 
 func response(s string) []byte {

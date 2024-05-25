@@ -14,10 +14,6 @@ import (
 	"os"
 )
 
-const (
-	RESPONSE = "+PONG\r\n"
-)
-
 func main() {
 	// You can use print statements as follows for debugging, they'll be visible when running tests.
 	fmt.Println("Logs from your program will appear here!")
@@ -59,18 +55,30 @@ func handleConnection(conn net.Conn) {
 			break
 		}
 
-		if strings.Contains(string(input), "PING") {
-			conn.Write([]byte(RESPONSE))
-		}
+		//	router
+		data := string(input)
+		pingHandler(data, conn)
+		echoHandler(data, conn)
+	}
+}
 
-		commands := respParser(string(input))
-		if len(commands) != 2 {
-			continue
+func pingHandler(s string, writer net.Conn) {
+	if strings.Contains(s, "PING") {
+		_, err := writer.Write(response("PONG"))
+		if err != nil {
+			log.Println("Error writing to connection: ", err.Error())
 		}
+	}
+}
 
-		if commands[0] == "echo" {
-			conn.Write(response(commands[1]))
-		}
+func echoHandler(s string, writer net.Conn) {
+	commands := respParser(s)
+	if len(commands) != 2 {
+		return
+	}
+
+	if commands[0] == "echo" {
+		writer.Write(response(commands[1]))
 	}
 }
 

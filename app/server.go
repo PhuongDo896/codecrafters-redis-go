@@ -87,6 +87,7 @@ func handleConnection(conn net.Conn, global *types.GlobalMap) {
 				router.NSetHandler(commands[1], commands[2], conn, global)
 			} else if len(commands) == 5 && commands[3] == "px" {
 				router.ESetHandler(commands[1], commands[2], commands[4], conn, global)
+				log.Println("GLOBAL STATE: ", global.Store)
 			}
 
 		case "get":

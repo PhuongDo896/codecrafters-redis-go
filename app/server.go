@@ -5,13 +5,14 @@ import (
 	"fmt"
 	"io"
 	"log"
-	"regexp"
-	"strconv"
-	"strings"
+	"sync"
 
 	// Uncomment this block to pass the first stage
 	"net"
 	"os"
+
+	"github.com/codecrafters-io/redis-starter-go/router"
+	"github.com/codecrafters-io/redis-starter-go/types"
 )
 
 func main() {
@@ -27,6 +28,11 @@ func main() {
 	}
 	defer l.Close()
 
+	globalMap := &types.GlobalMap{
+		Mu:    sync.Mutex{},
+		Store: make(map[string]string),
+	}
+
 	for {
 		// TODO: this block until new connection
 		conn, err := l.Accept()
@@ -35,12 +41,12 @@ func main() {
 			os.Exit(1)
 		}
 
-		go handleConnection(conn)
+		go handleConnection(conn, globalMap)
 	}
 
 }
 
-func handleConnection(conn net.Conn) {
+func handleConnection(conn net.Conn, global *types.GlobalMap) {
 	defer conn.Close()
 
 	for {
@@ -57,72 +63,9 @@ func handleConnection(conn net.Conn) {
 
 		//	router
 		data := string(input)
-		pingHandler(data, conn)
-		echoHandler(data, conn)
+		router.PingHandler(data, conn)
+		router.EchoHandler(data, conn)
+		router.SetHandler(data, conn, global)
+		router.GetHandler(data, conn, global)
 	}
-}
-
-func pingHandler(s string, writer net.Conn) {
-	if strings.Contains(s, "PING") {
-		_, err := writer.Write(response("PONG"))
-		if err != nil {
-			log.Println("Error writing to connection: ", err.Error())
-		}
-	}
-}
-
-func echoHandler(s string, writer net.Conn) {
-	commands := respParser(s)
-	if len(commands) != 2 {
-		return
-	}
-
-	if commands[0] == "echo" {
-		writer.Write(response(commands[1]))
-	}
-}
-
-func respParser(resp string) []string {
-	// normalize input
-	resp = strings.ToLower(resp)
-
-	re := regexp.MustCompile(`\$([0-9]+)\r\n(.+?)\r\n`)
-	match := re.FindAllStringSubmatch(resp, -1)
-
-	commands := make([]string, 0)
-
-	for _, m := range match {
-		word, ok := processBulkString(m...)
-		if ok {
-			commands = append(commands, word)
-		}
-	}
-
-	return commands
-}
-
-// for each submatch, there's 3 elements
-// 1st elem: whole submatch
-// 2nd elem: ([0-9]+) group
-// 3rd elem: (.+?) group
-func processBulkString(s ...string) (string, bool) {
-	if len(s) != 3 {
-		return "", false
-	}
-
-	wordLen, err := strconv.Atoi(string(s[1]))
-	if err != nil {
-		return "", false
-	}
-
-	// len of string = 5 fixed bit + (len(s[1])) + wordLen
-	if len(s[0]) != 5+(len(s[1]))+wordLen {
-		return "", false
-	}
-
-	return s[0][3+(len(s[1])) : 3+(len(s[1]))+wordLen], true
-}
-
-func response(s string) []byte {
-	return []byte(fmt.Sprintf("+%s\r\n", s))
 }

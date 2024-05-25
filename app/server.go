@@ -79,8 +79,7 @@ func handleConnection(conn net.Conn, global *types.GlobalMap) {
 			router.EchoHandler(commands[1], conn)
 
 		case "set":
-			log.Println("AFTER SWITCH: ", commands)
-			if len(commands) != 3 || len(commands) != 5 {
+			if len(commands) != 3 && len(commands) != 5 {
 				continue
 			}
 

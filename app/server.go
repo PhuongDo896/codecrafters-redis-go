@@ -63,7 +63,6 @@ func handleConnection(conn net.Conn, global *types.GlobalMap) {
 		//	router
 		data := string(input)
 		commands := utils.RespParser(data)
-		log.Println("COMMANDS LIST: ", commands)
 		switch commands[0] {
 		case "ping":
 			if len(commands) != 1 {
@@ -80,6 +79,7 @@ func handleConnection(conn net.Conn, global *types.GlobalMap) {
 			router.EchoHandler(commands[1], conn)
 
 		case "set":
+			log.Println("AFTER SWITCH: ", commands)
 			if len(commands) != 3 || len(commands) != 5 {
 				continue
 			}

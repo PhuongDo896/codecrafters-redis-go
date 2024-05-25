@@ -8,8 +8,8 @@ type GlobalMap struct {
 }
 
 func (g *GlobalMap) Set(key, value string) {
-	g.mu.Lock()
-	defer g.mu.Unlock()
+	g.Mu.Lock()
+	defer g.Mu.Unlock()
 	g.Store[key] = value
 }
 

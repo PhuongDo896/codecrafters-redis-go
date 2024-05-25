@@ -13,6 +13,7 @@ import (
 
 	"github.com/codecrafters-io/redis-starter-go/router"
 	"github.com/codecrafters-io/redis-starter-go/types"
+	"github.com/codecrafters-io/redis-starter-go/utils"
 )
 
 func main() {
@@ -30,11 +31,10 @@ func main() {
 
 	globalMap := &types.GlobalMap{
 		Mu:    sync.Mutex{},
-		Store: make(map[string]string),
+		Store: make(map[string]types.TValue),
 	}
 
 	for {
-		// TODO: this block until new connection
 		conn, err := l.Accept()
 		if err != nil {
 			fmt.Println("Error accepting connection: ", err.Error())
@@ -51,7 +51,6 @@ func handleConnection(conn net.Conn, global *types.GlobalMap) {
 
 	for {
 		input := make([]byte, 1024)
-		// TODO: this block until new line is sent by client
 		_, err := conn.Read(input)
 		if errors.Is(err, io.EOF) {
 			log.Println("Connection closed by client")
@@ -63,9 +62,39 @@ func handleConnection(conn net.Conn, global *types.GlobalMap) {
 
 		//	router
 		data := string(input)
-		router.PingHandler(data, conn)
-		router.EchoHandler(data, conn)
-		router.SetHandler(data, conn, global)
-		router.GetHandler(data, conn, global)
+		commands := utils.RespParser(data)
+		switch commands[0] {
+		case "ping":
+			if len(commands) != 1 {
+				continue
+			}
+
+			router.PingHandler(conn)
+
+		case "echo":
+			if len(commands) != 2 {
+				continue
+			}
+
+			router.EchoHandler(commands[1], conn)
+
+		case "set":
+			if len(commands) != 3 || len(commands) != 5 {
+				continue
+			}
+
+			if len(commands) == 3 {
+				router.NSetHandler(commands[1], commands[2], conn, global)
+			} else if len(commands) == 5 && commands[3] == "px" {
+				router.ESetHandler(commands[1], commands[2], commands[4], conn, global)
+			}
+
+		case "get":
+			if len(commands) != 2 {
+				continue
+			}
+
+			router.GetHandler(commands[1], conn, global)
+		}
 	}
 }

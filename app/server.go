@@ -113,12 +113,12 @@ func handleConnection(conn net.Conn, global *types.GlobalMap, dirFlag, dbFileNam
 			}
 
 			if commands[1] == "get" && commands[2] == DirFlag {
-				response := utils.FullBulkString(DirFlag, dirFlag)
+				response := utils.RESPArray(DirFlag, dirFlag)
 				conn.Write(utils.Response(response))
 			}
 
 			if commands[1] == "get" && commands[2] == DBFileNameFlag {
-				response := utils.FullBulkString(DBFileNameFlag, dbFileName)
+				response := utils.RESPArray(DBFileNameFlag, dbFileName)
 				conn.Write(utils.Response(response))
 			}
 		}

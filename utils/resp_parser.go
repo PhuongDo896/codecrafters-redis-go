@@ -64,7 +64,7 @@ func BulkString(s string) string {
 	return fmt.Sprintf("$%d\r\n%s\r\n", len(s), s)
 }
 
-func FullBulkString(args ...string) string {
+func RESPArray(args ...string) string {
 	header := len(args)
 	response := fmt.Sprintf("*%d\r\n", header)
 

@@ -60,8 +60,6 @@ func main() {
 func handleConnection(conn net.Conn, global *types.GlobalMap, dirFlag, dbFileName string) {
 	defer conn.Close()
 
-	log.Printf("dirFlag, dbFileName: %#+v, %#+v\n", dirFlag, dbFileName)
-
 	for {
 		input := make([]byte, 1024)
 		_, err := conn.Read(input)
@@ -115,7 +113,9 @@ func handleConnection(conn net.Conn, global *types.GlobalMap, dirFlag, dbFileNam
 			}
 
 			if commands[1] == "get" && commands[2] == DirFlag {
-				conn.Write(utils.Response(utils.BulkString(DirFlag) + utils.BulkString(dirFlag)))
+				response := utils.BulkString(DirFlag) + utils.BulkString(dirFlag)
+				log.Printf("response: %#+v\n", response)
+				// conn.Write(utils.Response())
 			}
 
 			if commands[1] == "get" && commands[2] == DBFileNameFlag {

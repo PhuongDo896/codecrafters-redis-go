@@ -48,14 +48,18 @@ func processBulkString(s ...string) (string, bool) {
 	return s[0][3+(len(s[1])) : 3+(len(s[1]))+wordLen], true
 }
 
-func StatusResponse(s string) []byte {
-	return []byte(fmt.Sprintf("+%s\r\n", s))
+func Response(s string) []byte {
+	return []byte(s)
 }
 
-func NullResponse() []byte {
-	return []byte("$-1\r\n")
+func SimpleString(s string) string {
+	return fmt.Sprintf("+%s\r\n", s)
 }
 
-func BulkStringResponse(s string) []byte {
-	return []byte(fmt.Sprintf("$%d\r\n%s\r\n", len(s), s))
+func NullString() string {
+	return "$-1\r\n"
+}
+
+func BulkString(s string) string {
+	return fmt.Sprintf("$%d\r\n%s\r\n", len(s), s)
 }

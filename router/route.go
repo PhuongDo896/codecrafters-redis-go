@@ -11,27 +11,27 @@ import (
 
 // 0 input, response pong
 func PingHandler(writer net.Conn) {
-	writer.Write(utils.StatusResponse("PONG"))
+	writer.Write(utils.Response(utils.SimpleString("PONG")))
 }
 
 // 1 input, response same input
 func EchoHandler(data string, writer net.Conn) {
-	writer.Write(utils.BulkStringResponse(data))
+	writer.Write(utils.Response(utils.BulkString(data)))
 }
 
 // 2 input, response OK, save key-value pair into global map
 func NSetHandler(key, value string, writer net.Conn, globalMap *types.GlobalMap) {
 	globalMap.NSet(key, value)
-	writer.Write(utils.StatusResponse("OK"))
+	writer.Write(utils.Response(utils.SimpleString("OK")))
 }
 
 // 1 input, response value of key from global map
 func GetHandler(key string, writer net.Conn, globalMap *types.GlobalMap) {
 	value := globalMap.Get(key)
 	if value == "" {
-		writer.Write(utils.NullResponse())
+		writer.Write(utils.Response((utils.NullString())))
 	} else {
-		writer.Write(utils.BulkStringResponse(value))
+		writer.Write(utils.Response(utils.BulkString(value)))
 	}
 }
 
@@ -43,5 +43,5 @@ func ESetHandler(key, value string, expireTime string, writer net.Conn, globalMa
 	}
 
 	globalMap.ESet(key, value, convertTime)
-	writer.Write(utils.StatusResponse("OK"))
+	writer.Write(utils.Response(utils.SimpleString("OK")))
 }

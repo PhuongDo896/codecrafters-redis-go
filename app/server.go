@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"flag"
 	"fmt"
 	"io"
 	"log"
@@ -16,9 +17,19 @@ import (
 	"github.com/codecrafters-io/redis-starter-go/utils"
 )
 
+const (
+	DirFlag        = "dir"
+	DBFileNameFlag = "dbfilename"
+)
+
 func main() {
 	// You can use print statements as follows for debugging, they'll be visible when running tests.
 	fmt.Println("Logs from your program will appear here!")
+
+	// extract global flag
+	dirFlag := flag.String("dir", "", "Directory where the RDB file is stored")
+	dbFileName := flag.String("dbfilename", "", "Name of the RDB file")
+	flag.Parse()
 
 	// Uncomment this block to pass the first stage
 
@@ -41,12 +52,12 @@ func main() {
 			os.Exit(1)
 		}
 
-		go handleConnection(conn, globalMap)
+		go handleConnection(conn, globalMap, *dirFlag, *dbFileName)
 	}
 
 }
 
-func handleConnection(conn net.Conn, global *types.GlobalMap) {
+func handleConnection(conn net.Conn, global *types.GlobalMap, dirFlag, dbFileName string) {
 	defer conn.Close()
 
 	for {
@@ -95,6 +106,19 @@ func handleConnection(conn net.Conn, global *types.GlobalMap) {
 			}
 
 			router.GetHandler(commands[1], conn, global)
+
+		case "config":
+			if len(commands) != 3 {
+				continue
+			}
+
+			if commands[1] == "get" && commands[2] == DirFlag {
+				conn.Write(utils.Response(utils.BulkString(DirFlag) + utils.BulkString(dirFlag)))
+			}
+
+			if commands[1] == "get" && commands[2] == DBFileNameFlag {
+				conn.Write(utils.Response(utils.BulkString(DBFileNameFlag) + utils.BulkString(dbFileName)))
+			}
 		}
 	}
 }

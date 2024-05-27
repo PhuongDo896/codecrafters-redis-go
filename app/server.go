@@ -27,8 +27,8 @@ func main() {
 	fmt.Println("Logs from your program will appear here!")
 
 	// extract global flag
-	dirFlag := flag.String("dir", "", "Directory where the RDB file is stored")
-	dbFileName := flag.String("dbfilename", "", "Name of the RDB file")
+	dirFlag := flag.String(DirFlag, "", "Directory where the RDB file is stored")
+	dbFileName := flag.String(DBFileNameFlag, "", "Name of the RDB file")
 	flag.Parse()
 
 	// Uncomment this block to pass the first stage
@@ -59,6 +59,8 @@ func main() {
 
 func handleConnection(conn net.Conn, global *types.GlobalMap, dirFlag, dbFileName string) {
 	defer conn.Close()
+
+	log.Printf("dirFlag, dbFileName: %#+v, %#+v\n", dirFlag, dbFileName)
 
 	for {
 		input := make([]byte, 1024)

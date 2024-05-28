@@ -3,5 +3,11 @@ package utils
 import "strings"
 
 func GetDumpTable(s string) []string {
-	return strings.Split(s, "\n")
+	lines := strings.Split(s, "\n")
+
+	for i := range lines {
+		lines[i] = lines[i][10:59]
+	}
+
+	return lines
 }

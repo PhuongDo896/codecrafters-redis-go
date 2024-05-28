@@ -133,8 +133,8 @@ func handleConnection(conn net.Conn, global *types.GlobalMap, dirFlag, dbFileNam
 			fmt.Println("CONTENT:", content)
 			fmt.Println("STRING CONTENT: ", string(content))
 
-			dump := hex.Dump(content)
-			fmt.Println("DUMP: ", utils.GetDumpTable(dump))
+			// dump := hex.Dump(content)
+			fmt.Println("DUMP: ", hex.EncodeToString(content))
 		}
 	}
 }

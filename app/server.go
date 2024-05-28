@@ -74,6 +74,7 @@ func handleConnection(conn net.Conn, global *types.GlobalMap, dirFlag, dbFileNam
 		//	router
 		data := string(input)
 		commands := utils.RespParser(data)
+		fmt.Println("RECEIVED, COMMANDS: ", data, commands)
 		switch commands[0] {
 		case "ping":
 			if len(commands) != 1 {
@@ -121,6 +122,15 @@ func handleConnection(conn net.Conn, global *types.GlobalMap, dirFlag, dbFileNam
 				response := utils.RESPArray(DBFileNameFlag, dbFileName)
 				conn.Write(utils.Response(response))
 			}
+
+		case "keys":
+			content, err := os.ReadFile(dirFlag + "/" + dbFileName)
+			if err != nil {
+				fmt.Println("ERROR WHEN READING FILE: ", err)
+			}
+
+			fmt.Println("CONTENT:", content)
+			fmt.Println("STRING CONTENT: ", string(content))
 		}
 	}
 }

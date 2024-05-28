@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"strconv"
 	"sync"
 
 	// Uncomment this block to pass the first stage
@@ -134,7 +135,7 @@ func handleConnection(conn net.Conn, global *types.GlobalMap, dirFlag, dbFileNam
 			fmt.Println("STRING CONTENT: ", string(content))
 
 			dump := hex.Dump(content)
-			fmt.Println("DUMP: ", dump)
+			fmt.Println("DUMP: ", strconv.Quote(dump))
 		}
 	}
 }
